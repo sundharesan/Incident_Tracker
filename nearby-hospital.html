@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+  <head>
+    <!--<meta http-equiv="content-type" content="text/html; charset=utf-8"/>-->
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+    <title>Google Maps AJAX + mySQL/PHP Example</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+<link href="css/mystyle.css" rel="stylesheet">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+        <style>
+        html, body, #map{
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+        }
+        .gm-style-iw div div {
+            font-size: 25px;
+            font-weight: bold;
+             color: #ff0000;
+        }
+
+     </style>
+    <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=places"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+    var map;
+    var infowindow;
+    var infowindow1;
+    var pos;
+    var myCity;
+    var radius;
+    var rad;
+ function load() {
+       // Try HTML5 geolocation
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      pos = new google.maps.LatLng(position.coords.latitude,
+                                       position.coords.longitude);
+      var marker=new google.maps.Marker({
+      position:pos,
+      map:map,
+      animation: google.maps.Animation.DROP
+      });
+
+      map = new google.maps.Map(document.getElementById("map"), {
+        center:pos,
+        zoom: 12,
+        mapTypeId: 'roadmap',
+        mapTypeControlOptions: {style: google.maps.MapTypeControlStyle.DROPDOWN_MENU}
+      });
+      infoWindow = new google.maps.InfoWindow();
+
+marker.setMap(map);
+marker.setAnimation(google.maps.Animation.BOUNCE);
+
+myCity = new google.maps.Circle({
+  center:pos,
+  radius:6000,
+  strokeColor:"#073855",
+  strokeOpacity:0.8,
+  strokeWeight:2,
+  fillColor:"#073855",
+  fillOpacity:0.15,
+  });
+
+myCity.setMap(map); 
+
+      var infowindow = new google.maps.InfoWindow({
+        map: map,
+        position: pos,
+        content: 'We are here'
+      });
+getpolicestation();
+      map.setCenter(pos);
+      searchLocationsNear()
+    }, function() {
+      handleNoGeolocation(true);
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleNoGeolocation(false);
+  }
+   }
+function getpolicestation(){
+var request = {
+    location: pos,
+    radius: 5000,
+    types: ['hospital']
+  };
+  infowindow1 = new google.maps.InfoWindow();
+  var service = new google.maps.places.PlacesService(map);
+  service.nearbySearch(request, callback);
+}
+function callback(results, status) {
+  if (status == google.maps.places.PlacesServiceStatus.OK) {
+    for (var i = 0; i < results.length; i++) {
+      createMarker1(results[i]);
+    }
+  }
+}
+
+function createMarker1(place) {
+  var placeLoc = place.geometry.location;
+  var marker1 = new google.maps.Marker({
+    map: map,
+    position: place.geometry.location,
+    icon:'img/Hospital.png'
+  });
+
+  google.maps.event.addListener(marker1, 'click', function() {
+    infowindow1.setContent(place.name);
+    infowindow1.open(map, this);
+  });
+}
+  </script>
+  </head>
+  <body style="margin:0px; padding:0px;overflow-y: hidden;" onload="load()"> 
+    <div id="map" ></div>
+  </body>
+</html>
